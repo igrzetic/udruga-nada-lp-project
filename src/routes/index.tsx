@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   Heart,
@@ -16,8 +16,6 @@ import {
   Briefcase,
   AlertCircle,
   CheckCircle2,
-  Menu,
-  X,
   Award,
   HandHeart,
 } from "lucide-react";
@@ -25,7 +23,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import heroImg from "@/assets/hero-walking.png";
+import { LpHeader, LP_NAV_SECTION_IDS } from "@/components/lp-header";
+import heroImg from "@/assets/hero-walking.avif";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -50,15 +49,6 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const nav = [
-  { id: "home", label: "Početna" },
-  { id: "why-movement", label: "Zašto kretanje?" },
-  { id: "recommendations", label: "Preporuke" },
-  { id: "getting-started", label: "Kako početi?" },
-  { id: "quiz", label: "Kviz: Moj stil" },
-  { id: "resources", label: "Resursi & Kontakt" },
-];
-
 function scrollTo(id: string) {
   document
     .getElementById(id)
@@ -67,7 +57,8 @@ function scrollTo(id: string) {
 
 function Index() {
   const [open, setOpen] = useState(false);
-  const [active, setActive] = useState("home");
+  const [active, setActive] = useState("");
+  const location = useRouterState({ select: (s) => s.location });
 
   useEffect(() => {
     const obs = new IntersectionObserver(
@@ -75,80 +66,35 @@ function Index() {
         entries.forEach((e) => e.isIntersecting && setActive(e.target.id)),
       { rootMargin: "-40% 0px -55% 0px" },
     );
-    nav.forEach((n) => {
-      const el = document.getElementById(n.id);
+    LP_NAV_SECTION_IDS.forEach((id) => {
+      const el = document.getElementById(id);
       if (el) obs.observe(el);
     });
     return () => obs.disconnect();
   }, []);
 
+  useEffect(() => {
+    const raw = location.hash;
+    if (!raw) return;
+    const id = raw.startsWith("#") ? raw.slice(1) : raw;
+    if (!(LP_NAV_SECTION_IDS as readonly string[]).includes(id)) {
+      return;
+    }
+    const el = document.getElementById(id);
+    if (!el) return;
+    requestAnimationFrame(() =>
+      el.scrollIntoView({ behavior: "smooth", block: "start" }),
+    );
+  }, [location.hash, location.pathname]);
+
   return (
     <div className="lp-page min-h-screen">
-      {/* NAV */}
-      <header className="lp-site-header">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between lp-site-header__bar">
-          <button
-            onClick={() => scrollTo("home")}
-            className="flex items-center gap-2 lp-logo-btn"
-          >
-            <span className="lp-logo-mark">
-              <Heart className="h-5 w-5" fill="currentColor" />
-            </span>
-            <span>Udruga Nada</span>
-          </button>
-          
-          <nav className="lp-nav-desktop">
-            {nav.map((n) => (
-              <button
-                key={n.id}
-                onClick={() => scrollTo(n.id)}
-                className={`lp-nav-pill ${
-                  active === n.id ? "lp-nav-pill--active" : "lp-nav-pill--idle"
-                }`}
-              >
-                {n.label}
-              </button>
-            ))}
-          </nav>
-
-          <button
-            type="button"
-            className="lg:hidden lp-menu-toggle"
-            onClick={() => setOpen(!open)}
-            aria-expanded={open}
-            aria-controls="mobile-nav-panel"
-            aria-label="Menu"
-          >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
-        </div>
-      </header>
-
-      {/* Izvan <header>: roditelj s backdrop-filterom sprječava blur unutar djeteta (Chromium/WebKit). */}
-      <div
-        id="mobile-nav-panel"
-        aria-hidden={!open}
-        className={`lp-mobile-panel ${open ? "lp-mobile-panel--open lp-animate-fade-in" : ""}`}
-      >
-        <div className="lp-mobile-panel__glass" aria-hidden />
-        <div className="lp-mobile-panel__content max-w-6xl mx-auto px-4 py-3 flex flex-col gap-1">
-          {nav.map((n) => (
-            <button
-              type="button"
-              key={n.id}
-              onClick={() => {
-                scrollTo(n.id);
-                setOpen(false);
-              }}
-              className={`lp-mobile-nav-link ${
-                active === n.id ? "lp-mobile-nav-link--active" : "lp-mobile-nav-link--idle"
-              }`}
-            >
-              {n.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <LpHeader
+        open={open}
+        setOpen={setOpen}
+        sectionActiveId={active}
+        onHomeSectionNavigate={(id) => scrollTo(id)}
+      />
 
       {/* HERO */}
       <section id="home" className="gradient-hero">
@@ -199,8 +145,23 @@ function Index() {
         </div>
       </section>
 
+      <section id="about" className="lp-section lp-section--muted">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="max-w-2xl">
+            <h2 className="lp-heading-2">
+              Tu smo za Vas — zajedno je lakše
+            </h2>
+            <p className="lp-lead mt-6">
+              {
+                "Svaka žena koja kroči kroz naša vrata donosi svoju priču, svoje strahove i svoju snagu. U Udruzi žena operiranih dojki NADA–Rijeka dočekujemo je s razumijevanjem, toplinom i otvorenim srcem — jer znamo kako izgleda taj put i znamo da je lakši kada se ne hoda sama."
+              }
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* WHY MOVEMENT */}
-      <section id="why-movement" className="lp-section">
+      <section id="why-movement" className="lp-section lp-section--tint-b">
         <div className="max-w-6xl mx-auto px-4">
           <div className="max-w-2xl">
             <span className="lp-kicker">
@@ -290,7 +251,7 @@ function Index() {
           </div>
 
           <Tabs defaultValue="zaposleni" className="mt-10">
-            <TabsList className="lp-tabs-list justify-start">
+            <TabsList className="lp-tabs-list justify-center mx-auto md:mx-0 md:justify-start">
               <TabsTrigger value="zaposleni" className="lp-tabs-trigger">
                 <Briefcase className="h-4 w-4 mr-2" />
                 Zaposleni
@@ -364,7 +325,7 @@ function Index() {
       </section>
 
       {/* GETTING STARTED */}
-      <section id="getting-started" className="lp-section">
+      <section id="getting-started" className="lp-section lp-section--tint-b">
         <div className="max-w-5xl mx-auto px-4">
           <div className="max-w-2xl">
             <span className="lp-kicker">
@@ -535,7 +496,7 @@ function Index() {
             </Card>
           </div>
 
-          <Alert className="lp-alert-foot">
+          <Alert className="lp-alert-foot !w-fit">
             <AlertCircle />
             <AlertTitle className="lp-alert-foot__title">Važno</AlertTitle>
             <AlertDescription className="lp-alert-foot__desc">

@@ -1,6 +1,6 @@
 /**
- * Overlay scrollbar (kao Porton main.tsx): nativni track sakriven,
- * ružičasta ručka (CSS), auto-hide dok nema scrolla / nakon pauze.
+ * Overlay scrollbar: native track hidden, custom thumb (CSS), auto-hide after idle.
+ * Thumb stays visible while the pointer hovers it (until mouse leaves the handle).
  */
 export function registerScrollbarOverlay(): () => void {
   if (typeof window === "undefined") return () => {};
@@ -15,8 +15,16 @@ export function registerScrollbarOverlay(): () => void {
   handle.className = "scroll-overlay-handle";
   body.appendChild(handle);
   let isDragging = false;
+  let handleHovered = false;
   let dragOffsetY = 0;
   let activePointerId: number | null = null;
+
+  const scheduleHide = () => {
+    if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+    timeoutId = window.setTimeout(() => {
+      if (!isDragging && !handleHovered) root.classList.remove("is-scrolling");
+    }, HIDE_DELAY_MS);
+  };
 
   const clamp = (v: number, min: number, max: number) =>
     Math.min(max, Math.max(min, v));
@@ -49,10 +57,18 @@ export function registerScrollbarOverlay(): () => void {
   const onScroll = () => {
     updateHandleMetrics();
     root.classList.add("is-scrolling");
+    scheduleHide();
+  };
+
+  const onHandleMouseEnter = () => {
+    handleHovered = true;
+    root.classList.add("is-scrolling");
     if (timeoutId !== undefined) window.clearTimeout(timeoutId);
-    timeoutId = window.setTimeout(() => {
-      if (!isDragging) root.classList.remove("is-scrolling");
-    }, HIDE_DELAY_MS);
+  };
+
+  const onHandleMouseLeave = () => {
+    handleHovered = false;
+    scheduleHide();
   };
 
   const scrollFromPointer = (clientY: number) => {
@@ -78,13 +94,11 @@ export function registerScrollbarOverlay(): () => void {
     root.classList.remove("scrollbar-dragging");
     body.style.userSelect = "";
     body.style.cursor = "";
-    if (timeoutId !== undefined) window.clearTimeout(timeoutId);
-    timeoutId = window.setTimeout(() => {
-      root.classList.remove("is-scrolling");
-    }, HIDE_DELAY_MS);
+    scheduleHide();
   };
 
   const startDragging = (clientY: number) => {
+    if (timeoutId !== undefined) window.clearTimeout(timeoutId);
     const rect = handle.getBoundingClientRect();
     isDragging = true;
     dragOffsetY = clientY - rect.top;
@@ -120,6 +134,8 @@ export function registerScrollbarOverlay(): () => void {
   handle.addEventListener("pointermove", onPointerMove);
   handle.addEventListener("pointerup", onPointerUpOrCancel);
   handle.addEventListener("pointercancel", onPointerUpOrCancel);
+  handle.addEventListener("mouseenter", onHandleMouseEnter);
+  handle.addEventListener("mouseleave", onHandleMouseLeave);
 
   updateHandleMetrics();
   requestAnimationFrame(updateHandleMetrics);
@@ -138,6 +154,8 @@ export function registerScrollbarOverlay(): () => void {
     handle.removeEventListener("pointermove", onPointerMove);
     handle.removeEventListener("pointerup", onPointerUpOrCancel);
     handle.removeEventListener("pointercancel", onPointerUpOrCancel);
+    handle.removeEventListener("mouseenter", onHandleMouseEnter);
+    handle.removeEventListener("mouseleave", onHandleMouseLeave);
     root.classList.remove("is-scrolling", "scrollbar-dragging");
     handle.remove();
   };

@@ -156,6 +156,17 @@
     transform: translateY(0);
   }
 }
+
+@keyframes lp-team-bubble-rise {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 1.35rem));
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
 @keyframes float {
   0%,
   100% {
@@ -190,6 +201,10 @@
       -apple-system,
       "Segoe UI",
       sans-serif;
+  }
+
+  h1 {
+    margin-block-start: 0;
   }
 
   html {
@@ -316,6 +331,8 @@ html.is-scrolling .scroll-overlay-handle {
 
 .lp-page {
   --lp-header-bar-height: 4rem;
+  --lp-section-tint-a: #fff5f9;
+  --lp-section-tint-b: #fff9fd;
   background-color: var(--background);
   color: var(--foreground);
 }
@@ -366,6 +383,334 @@ html.is-scrolling .scroll-overlay-handle {
   color: var(--primary);
 }
 
+.lp-nav-brand-logo {
+  display: block;
+  height: 2.125rem;
+  width: auto;
+  max-width: 11rem;
+  object-fit: contain;
+}
+
+@media (min-width: 768px) {
+  .lp-nav-brand-logo {
+    height: 2.25rem;
+    max-width: 12rem;
+  }
+}
+
+.lp-about-hero-logo {
+  display: block;
+  height: 5.5rem;
+  width: auto;
+  max-width: min(20rem, 88vw);
+  object-fit: contain;
+}
+
+@media (min-width: 768px) {
+  .lp-about-hero-logo {
+    height: 6.75rem;
+    max-width: 22rem;
+  }
+}
+
+.lp-about-logo-reveal {
+  animation: fade-in 0.75s ease-out both;
+}
+
+.lp-about-body-reveal {
+  animation: fade-up 0.8s ease-out 0.55s both;
+}
+
+.lp-about-section-title {
+  margin-bottom: 2rem;
+}
+
+.lp-heading-2.lp-about-section-title {
+  margin-top: 0;
+  margin-block-start: 0;
+}
+
+.lp-about-subsection-heading {
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+}
+
+.lp-heading-2.lp-about-subsection-heading {
+  margin-top: 0;
+  margin-block-start: 0;
+}
+
+.lp-leadership-heading-block {
+  margin-bottom: 2rem;
+}
+
+.lp-leadership-portrait {
+  display: block;
+  width: 100%;
+  max-width: 16rem;
+  margin-inline: 0;
+  aspect-ratio: 1;
+  border-radius: 2rem;
+  object-fit: cover;
+  box-shadow: 0 10px 40px -10px oklch(0.72 0.12 5 / 0.25);
+}
+
+@media (min-width: 768px) {
+  .lp-leadership-portrait {
+    max-width: 18rem;
+  }
+}
+
+/* Group photo (Katica): landscape frame to reduce side cropping. */
+.lp-leadership-photo-landscape {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin-inline: 0;
+  aspect-ratio: 3 / 2;
+  border-radius: 2rem;
+  object-fit: cover;
+  object-position: center center;
+  box-shadow: 0 10px 40px -10px oklch(0.72 0.12 5 / 0.25);
+}
+
+.lp-leadership-scroll-reveal:not(.lp-leadership-scroll-reveal--active)
+  .lp-leadership-reveal-heading,
+.lp-leadership-scroll-reveal:not(.lp-leadership-scroll-reveal--active)
+  .lp-leadership-reveal-img,
+.lp-leadership-scroll-reveal:not(.lp-leadership-scroll-reveal--active)
+  .lp-leadership-reveal-copy {
+  opacity: 0;
+}
+
+.lp-leadership-scroll-reveal--active .lp-leadership-reveal-heading {
+  animation: fade-up 0.8s ease-out both;
+}
+
+.lp-leadership-scroll-reveal--active .lp-leadership-reveal-img {
+  animation: fade-in 0.75s ease-out 0.2s both;
+}
+
+.lp-leadership-scroll-reveal--active .lp-leadership-reveal-copy {
+  animation: fade-up 0.8s ease-out 0.55s both;
+}
+
+/* About page — “Stručni tim” scattered name circles */
+.lp-team-bubble-field {
+  position: relative;
+  width: 100%;
+  min-height: 40rem;
+  padding: 0.25rem 0 2.5rem;
+}
+
+@media (min-width: 768px) {
+  .lp-team-bubble-field {
+    min-height: clamp(32rem, 92vw, 44rem);
+  }
+}
+
+@media (min-width: 1024px) {
+  .lp-team-bubble-field {
+    min-height: 40rem;
+  }
+}
+
+.lp-team-bubble {
+  position: absolute;
+  left: var(--bubble-cx-m);
+  top: var(--bubble-cy-m);
+  width: var(--bubble-size-m);
+  height: var(--bubble-size-m);
+  box-sizing: border-box;
+  border: none;
+  background: transparent;
+  perspective: 1000px;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  cursor: default;
+  outline: none;
+  list-style: none;
+}
+
+/* Coin “ground” shadow — grows when the bubble lifts on hover */
+.lp-team-bubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -0.2rem;
+  z-index: 0;
+  width: 74%;
+  height: 22%;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translateX(-50%) scale(0.88, 0.75);
+  background: color-mix(in oklch, var(--primary) 28%, transparent);
+  filter: blur(10px);
+  opacity: 0.22;
+  transition:
+    opacity 0.65s ease,
+    transform 0.65s ease,
+    filter 0.65s ease;
+}
+
+@media (min-width: 768px) {
+  .lp-team-bubble {
+    left: var(--bubble-cx);
+    top: var(--bubble-cy);
+    width: var(--bubble-size);
+    height: var(--bubble-size);
+  }
+}
+
+.lp-team-bubble:hover,
+.lp-team-bubble:focus-visible {
+  z-index: 4;
+}
+
+.lp-team-bubble:hover::after,
+.lp-team-bubble:focus-visible::after {
+  opacity: 0.52;
+  bottom: -0.35rem;
+  transform: translateX(-50%) scale(1.12, 1);
+  filter: blur(14px);
+}
+
+.lp-team-bubble:focus-visible .lp-team-bubble__face--front {
+  outline: 2px solid color-mix(in oklch, var(--primary) 45%, transparent);
+  outline-offset: 2px;
+}
+
+.lp-team-bubble__flip {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform: rotateY(0deg) scale(1) translateZ(0);
+  transition: transform 0.65s cubic-bezier(0.34, 1.12, 0.64, 1);
+  border-radius: 9999px;
+  will-change: transform;
+}
+
+/* Scale + flip on one transform — coin lift & turn */
+.lp-team-bubble:hover .lp-team-bubble__flip,
+.lp-team-bubble:focus-visible .lp-team-bubble__flip {
+  transform: rotateY(-180deg) scale(1.12) translateZ(6px);
+}
+
+.lp-team-bubble__face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0.35rem 0.5rem;
+  border-radius: 9999px;
+  text-align: center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  /* Match `.lp-nav-pill--active` */
+  background-color: color-mix(in oklch, var(--primary) 15%, transparent);
+  color: var(--primary);
+  font-weight: 500;
+  line-height: 1.15;
+  font-size: clamp(0.58rem, 0.5rem + 0.55vw, 0.875rem);
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  box-shadow: none;
+  transition: box-shadow 0.65s ease;
+}
+
+.lp-team-bubble:hover .lp-team-bubble__face,
+.lp-team-bubble:focus-visible .lp-team-bubble__face {
+  box-shadow:
+    0 6px 14px -4px color-mix(in oklch, var(--primary) 32%, transparent),
+    0 14px 28px -6px color-mix(in oklch, var(--primary) 22%, transparent);
+}
+
+.lp-team-bubble__face--back {
+  transform: rotateY(180deg);
+}
+
+.lp-team-bubble__name,
+.lp-team-bubble__title {
+  max-width: 100%;
+  padding-inline: 0.1rem;
+  text-wrap: balance;
+}
+
+.lp-team-bubble__name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  overflow: hidden;
+}
+
+.lp-team-bubble__title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 7;
+  overflow: hidden;
+  font-size: 0.78em;
+  line-height: 1.12;
+}
+
+.lp-team-bubble-field:not(.lp-team-bubble-field--revealed) .lp-team-bubble {
+  opacity: 0;
+  transform: translate(-50%, calc(-50% + 1.35rem));
+  pointer-events: none;
+}
+
+.lp-team-bubble-field--revealed .lp-team-bubble {
+  animation: lp-team-bubble-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--team-bubble-enter-delay, 0s);
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-team-bubble-field:not(.lp-team-bubble-field--revealed) .lp-team-bubble {
+    transform: translate(-50%, calc(-50% + 0.35rem));
+  }
+
+  .lp-team-bubble-field--revealed .lp-team-bubble {
+    animation: none;
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+
+  .lp-team-bubble__flip {
+    transition: none;
+  }
+
+  .lp-team-bubble:hover::after,
+  .lp-team-bubble:focus-visible::after {
+    opacity: 0.35;
+    transform: translateX(-50%) scale(0.95, 0.85);
+  }
+
+  .lp-team-bubble:hover .lp-team-bubble__flip,
+  .lp-team-bubble:focus-visible .lp-team-bubble__flip {
+    transform: scale(1.06);
+  }
+
+  .lp-team-bubble:hover .lp-team-bubble__face--front,
+  .lp-team-bubble:focus-visible .lp-team-bubble__face--front {
+    opacity: 0;
+  }
+
+  .lp-team-bubble:hover .lp-team-bubble__face--back,
+  .lp-team-bubble:focus-visible .lp-team-bubble__face--back {
+    opacity: 1;
+    transform: rotateY(0deg);
+  }
+
+  .lp-team-bubble__face--back {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+}
+
 .lp-nav-desktop {
   display: none;
 }
@@ -388,6 +733,15 @@ html.is-scrolling .scroll-overlay-handle {
 .lp-nav-pill--idle:hover {
   color: var(--foreground);
   background-color: var(--muted);
+}
+
+a.lp-nav-pill {
+  text-decoration: none;
+}
+
+a.lp-mobile-nav-link {
+  display: block;
+  text-decoration: none;
 }
 
 .lp-menu-toggle {
@@ -417,7 +771,19 @@ html.is-scrolling .scroll-overlay-handle {
   padding-block: 5rem;
 }
 .lp-section--muted {
+  background-color: var(--lp-section-tint-a);
+}
+
+.lp-section--tint-b {
+  background-color: var(--lp-section-tint-b);
+}
+
+.dark .lp-page .lp-section--muted {
   background-color: color-mix(in oklch, var(--muted) 40%, transparent);
+}
+
+.dark .lp-page .lp-section--tint-b {
+  background-color: color-mix(in oklch, var(--secondary) 42%, var(--background));
 }
 
 .lp-kicker {
@@ -434,6 +800,7 @@ html.is-scrolling .scroll-overlay-handle {
   font-weight: 700;
   line-height: 1.2;
 }
+
 .lp-lead {
   margin-top: 1rem;
   font-size: 1.125rem;
@@ -456,6 +823,7 @@ html.is-scrolling .scroll-overlay-handle {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  margin-bottom: 1.25rem;
   padding: 0.375rem 0.75rem;
   border-radius: 9999px;
   font-size: 0.875rem;
@@ -465,7 +833,6 @@ html.is-scrolling .scroll-overlay-handle {
 }
 
 .lp-hero-title {
-  margin-top: 1.25rem;
   font-size: 2.25rem;
   font-weight: 700;
   letter-spacing: -0.025em;
@@ -903,22 +1270,33 @@ html.is-scrolling .scroll-overlay-handle {
 
 .lp-alert-foot {
   margin-top: 2rem;
+  margin-right: auto;
+  width: fit-content;
+  max-width: 100%;
+  padding: 1rem 1.25rem 1rem 1.125rem;
   border-radius: 1rem;
   border-color: color-mix(in oklch, var(--primary) 30%, transparent);
   background-color: color-mix(in oklch, var(--primary) 5%, transparent);
+  font-size: 1rem;
+  line-height: 1.5;
 }
 
 .lp-alert-foot > svg {
-  height: 1.25rem;
-  width: 1.25rem;
+  height: 1.5rem;
+  width: 1.5rem;
   color: var(--primary);
 }
 
 .lp-alert-foot__title {
+  font-size: 1.125rem;
   font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
 }
 
 .lp-alert-foot__desc {
+  font-size: 1rem;
+  line-height: 1.55;
   color: color-mix(in oklch, var(--foreground) 80%, transparent);
 }
 
